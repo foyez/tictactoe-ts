@@ -13,6 +13,9 @@ var DOMDisplay = (function () {
         this.getElement = function (selector) {
             return document.querySelector(selector);
         };
+        this.getAllElements = function (selector) {
+            return document.querySelectorAll(selector);
+        };
         this.printGameBoard = function (boardData) {
             var game = _this.getElement('#game');
             var gameBoard = _this.createElement('div', 'board');
@@ -33,17 +36,43 @@ var DOMDisplay = (function () {
             var cell = boardRow.querySelector("[data-col=\"" + col + "\"]");
             cell.append(playerToken);
         };
+        this.clearGameBoard = function () {
+            var cells = _this.getAllElements('.col');
+            cells.forEach(function (cell) { return (cell.textContent = ''); });
+        };
         this.printScoreBoard = function (scoreData) {
             var game = _this.getElement('#game');
             var scoreBoard = _this.createElement('div', 'score');
             game.append(scoreBoard);
             var playerOneScore = _this.createElement('div', 'x');
-            playerOneScore.textContent = "Player 1: " + scoreData.x;
-            playerOneScore.id = 'score-x';
+            var score1 = _this.createElement('span');
+            score1.id = 'score-x';
+            score1.textContent = "" + scoreData.x;
+            playerOneScore.textContent = 'Player 1: ';
+            playerOneScore.append(score1);
             var playerTwoScore = _this.createElement('div', 'o');
-            playerTwoScore.textContent = "Player 2: " + scoreData.o;
-            playerTwoScore.id = 'score-o';
+            var score2 = _this.createElement('span');
+            score2.id = 'score-o';
+            score2.textContent = "" + scoreData.o;
+            playerTwoScore.textContent = 'Player 2: ';
+            playerTwoScore.append(score2);
             scoreBoard.append(playerOneScore, playerTwoScore);
+        };
+        this.updateScore = function (currentScore, currentPlayer) {
+            var currentPlayerScore = _this.getElement("#score-" + currentPlayer);
+            var score = currentScore[currentPlayer];
+            currentPlayerScore.textContent = "" + score;
+        };
+        this.printMessage = function (winner) {
+            var message = _this.createElement('div', 'message');
+            var player = winner === 'x' ? 'Player 1' : 'Player 2';
+            message.textContent = winner ? player + " wins!" : 'Nobody wins!';
+            var game = _this.getElement('#game');
+            game.append(message);
+        };
+        this.clearMessage = function () {
+            var message = _this.getElement('.message');
+            message.remove();
         };
     }
     return DOMDisplay;
@@ -57,12 +86,17 @@ var TicTacToe = (function () {
         ]; };
         this.display = display;
         this.board = this.emptyBoard();
+        this.players = { x: 'X', o: 'O' };
         this.score = { x: 0, o: 0 };
+        this.wait = 1500;
+        this.waiting = false;
+        this.currentPlayer = this.players.x;
     }
     TicTacToe.prototype.startGame = function () {
         this.display.printScoreBoard(this.score);
         this.display.printGameBoard(this.board);
-        this.display.updateBoard(1, 1, 'o');
+        this.display.updateBoard(1, 1, 'x');
+        this.display.printMessage('x');
     };
     return TicTacToe;
 }());
