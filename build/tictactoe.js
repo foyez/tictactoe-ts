@@ -75,10 +75,29 @@ var DOMDisplay = (function () {
             message.remove();
         };
     }
+    DOMDisplay.prototype.bindHandler = function (clickHandler) {
+        document.addEventListener('click', function (e) {
+            var clicked = e.target;
+            var isColumn = clicked.className === 'col';
+            if (isColumn) {
+                var cell = clicked;
+                var row = +cell.parentElement.dataset.row;
+                var col = +cell.dataset.col;
+                clickHandler(row, col);
+            }
+        });
+    };
     return DOMDisplay;
 }());
 var TicTacToe = (function () {
     function TicTacToe(display) {
+        var _this = this;
+        this.clickCell = function (row, col) {
+            var canContinue = _this.board[row][col] === '';
+            if (canContinue && !_this.waiting) {
+                _this.display.updateBoard(row, col, _this.currentPlayer);
+            }
+        };
         this.emptyBoard = function () { return [
             ['', '', ''],
             ['', '', ''],
@@ -91,12 +110,11 @@ var TicTacToe = (function () {
         this.wait = 1500;
         this.waiting = false;
         this.currentPlayer = this.players.x;
+        this.display.bindHandler(this.clickCell);
     }
     TicTacToe.prototype.startGame = function () {
         this.display.printScoreBoard(this.score);
         this.display.printGameBoard(this.board);
-        this.display.updateBoard(1, 1, 'x');
-        this.display.printMessage('x');
     };
     return TicTacToe;
 }());

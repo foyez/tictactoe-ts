@@ -15,6 +15,7 @@ interface Score {
 }
 
 interface Display {
+  bindHandler(clickHandler: (row: number, col: number) => void): void
   createElement(tag: string, className?: string, dataset?: any[]): HTMLElement
   getElement(selector: string): HTMLElement
   getAllElements(selector: string): NodeList
@@ -32,6 +33,25 @@ interface Display {
 // =======================================
 
 class DOMDisplay implements Display {
+  /**
+   * Bind document click to the game if clicked element is a cell
+   * @param {requestCallback} clickHandler
+   */
+  bindHandler(clickHandler: (row: number, col: number) => void): void {
+    document.addEventListener('click', (e: Event) => {
+      const clicked = <HTMLElement>e.target
+      const isColumn = clicked.className === 'col'
+
+      if (isColumn) {
+        const cell = clicked
+        const row: number = +cell.parentElement!.dataset.row!
+        const col: number = +cell.dataset.col!
+
+        clickHandler(row, col)
+      }
+    })
+  }
+
   /**
    * Create an element and apply an optional class and dataset
    * @param {string} tag
@@ -193,6 +213,21 @@ class TicTacToe {
     this.wait = 1500
     this.waiting = false
     this.currentPlayer = this.players.x
+
+    this.display.bindHandler(this.clickCell)
+  }
+
+  /**
+   * Click a cell in the game board and determine if
+   * - its a win, a stalemate, or the game continues
+   * - Game over or switch player
+   */
+  clickCell = (row: number, col: number): void => {
+    const canContinue = this.board[row][col] === ''
+
+    if (canContinue && !this.waiting) {
+      this.display.updateBoard(row, col, this.currentPlayer)
+    }
   }
 
   /**
@@ -211,8 +246,6 @@ class TicTacToe {
   startGame(): void {
     this.display.printScoreBoard(this.score)
     this.display.printGameBoard(this.board)
-    this.display.updateBoard(1, 1, 'x')
-    this.display.printMessage('x')
   }
 }
 
