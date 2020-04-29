@@ -2,10 +2,17 @@
 // Custom Types
 // =======================================
 
-interface PlayerProps {
-  x: string
-  o: string
-  [key: string]: string
+interface Score {
+  x: number
+  o: number
+  [key: string]: number
+}
+
+interface Display {
+  createElement(tag: string, className?: string, dataset?: any[]): HTMLElement
+  getElement(selector: string): HTMLElement
+  printGameBoard(boardData: string[][]): void
+  printScoreBoard(scoreData: Score): void
 }
 
 // =======================================
@@ -60,11 +67,55 @@ class DOMDisplay {
       })
     })
   }
+
+  /**
+   * Create the score board view and render it to the DOM
+   * @param {Score} scoreData
+   */
+  printScoreBoard = (scoreData: Score): void => {
+    const game = this.getElement('#game')
+    const scoreBoard = this.createElement('div', 'score')
+
+    game.append(scoreBoard)
+
+    const playerOneScore = this.createElement('div', 'x')
+    playerOneScore.textContent = `Player 1: ${scoreData.x}`
+    playerOneScore.id = 'score-x'
+
+    const playerTwoScore = this.createElement('div', 'o')
+    playerTwoScore.textContent = `Player 2: ${scoreData.o}`
+    playerTwoScore.id = 'score-o'
+
+    scoreBoard.append(playerOneScore, playerTwoScore)
+  }
 }
 
-const domDisplay = new DOMDisplay()
-domDisplay.printGameBoard([
-  ['', '', ''],
-  ['', '', ''],
-  ['', '', ''],
-])
+class TicTacToe {
+  display: Display
+  board: string[][]
+  score: Score
+
+  constructor(display: Display) {
+    this.display = display
+    this.board = [
+      ['', '', ''],
+      ['', '', ''],
+      ['', '', ''],
+    ]
+    this.score = { x: 0, o: 0 }
+  }
+
+  /**
+   * Render score board and game board
+   */
+  startGame(): void {
+    this.display.printScoreBoard(this.score)
+    this.display.printGameBoard(this.board)
+  }
+}
+
+// =======================================
+// Start Game
+// =======================================
+const tictactoe = new TicTacToe(new DOMDisplay())
+tictactoe.startGame()

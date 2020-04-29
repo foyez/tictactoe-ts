@@ -26,12 +26,36 @@ var DOMDisplay = (function () {
                 });
             });
         };
+        this.printScoreBoard = function (scoreData) {
+            var game = _this.getElement('#game');
+            var scoreBoard = _this.createElement('div', 'score');
+            game.append(scoreBoard);
+            var playerOneScore = _this.createElement('div', 'x');
+            playerOneScore.textContent = "Player 1: " + scoreData.x;
+            playerOneScore.id = 'score-x';
+            var playerTwoScore = _this.createElement('div', 'o');
+            playerTwoScore.textContent = "Player 2: " + scoreData.o;
+            playerTwoScore.id = 'score-o';
+            scoreBoard.append(playerOneScore, playerTwoScore);
+        };
     }
     return DOMDisplay;
 }());
-var domDisplay = new DOMDisplay();
-domDisplay.printGameBoard([
-    ['', '', ''],
-    ['', '', ''],
-    ['', '', ''],
-]);
+var TicTacToe = (function () {
+    function TicTacToe(display) {
+        this.display = display;
+        this.board = [
+            ['', '', ''],
+            ['', '', ''],
+            ['', '', ''],
+        ];
+        this.score = { x: 0, o: 0 };
+    }
+    TicTacToe.prototype.startGame = function () {
+        this.display.printScoreBoard(this.score);
+        this.display.printGameBoard(this.board);
+    };
+    return TicTacToe;
+}());
+var tictactoe = new TicTacToe(new DOMDisplay());
+tictactoe.startGame();
