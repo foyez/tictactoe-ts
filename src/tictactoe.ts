@@ -12,6 +12,7 @@ interface Display {
   createElement(tag: string, className?: string, dataset?: any[]): HTMLElement
   getElement(selector: string): HTMLElement
   printGameBoard(boardData: string[][]): void
+  updateBoard(row: number, col: number, currentPlayer: string): void
   printScoreBoard(scoreData: Score): void
 }
 
@@ -69,6 +70,22 @@ class DOMDisplay {
   }
 
   /**
+   * Update the board by appending a player token to a cell
+   * @param {number} row
+   * @param {number} col
+   * @param {string} currentPlayer
+   */
+  updateBoard = (row: number, col: number, currentPlayer: string): void => {
+    const playerToken = this.createElement('span', currentPlayer)
+    playerToken.textContent = currentPlayer
+
+    const boardRow = this.getElement(`[data-row="${row}"]`)
+    const cell = <HTMLElement>boardRow.querySelector(`[data-col="${col}"]`)
+
+    cell.append(playerToken)
+  }
+
+  /**
    * Create the score board view and render it to the DOM
    * @param {Score} scoreData
    */
@@ -97,13 +114,19 @@ class TicTacToe {
 
   constructor(display: Display) {
     this.display = display
-    this.board = [
-      ['', '', ''],
-      ['', '', ''],
-      ['', '', ''],
-    ]
+    this.board = this.emptyBoard()
     this.score = { x: 0, o: 0 }
   }
+
+  /**
+   * Create a new empty board
+   * @return {Object[]} 3x3 multi-dimensional array of empty strings
+   */
+  emptyBoard = (): string[][] => [
+    ['', '', ''],
+    ['', '', ''],
+    ['', '', ''],
+  ]
 
   /**
    * Render score board and game board
@@ -111,6 +134,7 @@ class TicTacToe {
   startGame(): void {
     this.display.printScoreBoard(this.score)
     this.display.printGameBoard(this.board)
+    this.display.updateBoard(1, 1, 'o')
   }
 }
 

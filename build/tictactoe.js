@@ -26,6 +26,13 @@ var DOMDisplay = (function () {
                 });
             });
         };
+        this.updateBoard = function (row, col, currentPlayer) {
+            var playerToken = _this.createElement('span', currentPlayer);
+            playerToken.textContent = currentPlayer;
+            var boardRow = _this.getElement("[data-row=\"" + row + "\"]");
+            var cell = boardRow.querySelector("[data-col=\"" + col + "\"]");
+            cell.append(playerToken);
+        };
         this.printScoreBoard = function (scoreData) {
             var game = _this.getElement('#game');
             var scoreBoard = _this.createElement('div', 'score');
@@ -43,17 +50,19 @@ var DOMDisplay = (function () {
 }());
 var TicTacToe = (function () {
     function TicTacToe(display) {
+        this.emptyBoard = function () { return [
+            ['', '', ''],
+            ['', '', ''],
+            ['', '', ''],
+        ]; };
         this.display = display;
-        this.board = [
-            ['', '', ''],
-            ['', '', ''],
-            ['', '', ''],
-        ];
+        this.board = this.emptyBoard();
         this.score = { x: 0, o: 0 };
     }
     TicTacToe.prototype.startGame = function () {
         this.display.printScoreBoard(this.score);
         this.display.printGameBoard(this.board);
+        this.display.updateBoard(1, 1, 'o');
     };
     return TicTacToe;
 }());
