@@ -95,7 +95,25 @@ var TicTacToe = (function () {
         this.clickCell = function (row, col) {
             var canContinue = _this.board[row][col] === '';
             if (canContinue && !_this.waiting) {
+                _this.board[row][col] = _this.currentPlayer;
                 _this.display.updateBoard(row, col, _this.currentPlayer);
+                var win = _this.isGameWon(row, col);
+                var stalemate = _this.board
+                    .map(function (row) { return row.filter(function (col) { return col === ''; }); })
+                    .filter(function (row) { return row.length > 0; }).length === 0;
+                if (!_this.waiting) {
+                    if (win) {
+                        _this.increaseScore();
+                        _this.display.updateScore(_this.score, _this.currentPlayer);
+                        _this.gameOver(_this.currentPlayer);
+                    }
+                    else if (stalemate) {
+                        _this.gameOver();
+                    }
+                    else {
+                        _this.switchPlayer();
+                    }
+                }
             }
         };
         this.emptyBoard = function () { return [
@@ -103,15 +121,51 @@ var TicTacToe = (function () {
             ['', '', ''],
             ['', '', ''],
         ]; };
+        this.isGameWon = function (row, col) {
+            var hWon = _this.board[row][0] === _this.board[row][1] &&
+                _this.board[row][1] === _this.board[row][2] &&
+                _this.board[row][0] === _this.currentPlayer;
+            var vWon = _this.board[0][col] === _this.board[1][col] &&
+                _this.board[1][col] === _this.board[2][col] &&
+                _this.board[0][col] === _this.currentPlayer;
+            var dWon = (_this.board[0][0] === _this.currentPlayer &&
+                _this.board[1][1] === _this.currentPlayer &&
+                _this.board[2][2] === _this.currentPlayer) ||
+                (_this.board[2][0] === _this.currentPlayer &&
+                    _this.board[1][1] === _this.currentPlayer &&
+                    _this.board[0][2] === _this.currentPlayer);
+            return hWon || vWon || dWon;
+        };
         this.display = display;
         this.board = this.emptyBoard();
-        this.players = { x: 'X', o: 'O' };
+        this.players = { x: 'x', o: 'o' };
         this.score = { x: 0, o: 0 };
         this.wait = 1500;
         this.waiting = false;
         this.currentPlayer = this.players.x;
         this.display.bindHandler(this.clickCell);
     }
+    TicTacToe.prototype.gameOver = function (winner) {
+        var _this = this;
+        this.waiting = true;
+        this.display.printMessage(winner);
+        setTimeout(function () {
+            _this.resetBoard();
+            _this.waiting = false;
+        }, this.wait);
+    };
+    TicTacToe.prototype.resetBoard = function () {
+        this.display.clearMessage();
+        this.display.clearGameBoard();
+        this.board = this.emptyBoard();
+    };
+    TicTacToe.prototype.switchPlayer = function () {
+        this.currentPlayer =
+            this.currentPlayer === this.players.x ? this.players.o : this.players.x;
+    };
+    TicTacToe.prototype.increaseScore = function () {
+        this.score[this.currentPlayer] += 1;
+    };
     TicTacToe.prototype.startGame = function () {
         this.display.printScoreBoard(this.score);
         this.display.printGameBoard(this.board);

@@ -24,7 +24,7 @@ interface Display {
   clearGameBoard(): void
   printScoreBoard(scoreData: Score): void
   updateScore(currentScore: Score, currentPlayer: string): void
-  printMessage(winner: string): void
+  printMessage(winner?: string): void
   clearMessage(): void
 }
 
@@ -177,7 +177,7 @@ class DOMDisplay implements Display {
    * Print the win, lose, or stalemate message
    * @param {string} winner
    */
-  printMessage = (winner: string): void => {
+  printMessage = (winner?: string): void => {
     const message = this.createElement('div', 'message')
     const player = winner === 'x' ? 'Player 1' : 'Player 2'
 
@@ -208,7 +208,7 @@ class TicTacToe {
   constructor(display: Display) {
     this.display = display
     this.board = this.emptyBoard()
-    this.players = { x: 'X', o: 'O' }
+    this.players = { x: 'x', o: 'o' }
     this.score = { x: 0, o: 0 }
     this.wait = 1500
     this.waiting = false
@@ -226,8 +226,40 @@ class TicTacToe {
     const canContinue = this.board[row][col] === ''
 
     if (canContinue && !this.waiting) {
+      this.board[row][col] = this.currentPlayer
       this.display.updateBoard(row, col, this.currentPlayer)
+
+      const win = this.isGameWon(row, col)
+      const stalemate =
+        this.board
+          .map((row) => row.filter((col) => col === ''))
+          .filter((row) => row.length > 0).length === 0
+
+      if (!this.waiting) {
+        if (win) {
+          this.increaseScore()
+          this.display.updateScore(this.score, this.currentPlayer)
+          this.gameOver(this.currentPlayer)
+        } else if (stalemate) {
+          this.gameOver()
+        } else {
+          this.switchPlayer()
+        }
+      }
     }
+  }
+
+  /**
+   * Reset the board after a win or stalemate
+   */
+  gameOver(winner?: string): void {
+    this.waiting = true
+    this.display.printMessage(winner)
+
+    setTimeout(() => {
+      this.resetBoard()
+      this.waiting = false
+    }, this.wait)
   }
 
   /**
@@ -239,6 +271,59 @@ class TicTacToe {
     ['', '', ''],
     ['', '', ''],
   ]
+
+  /**
+   * Restore the board
+   */
+  resetBoard(): void {
+    this.display.clearMessage()
+    this.display.clearGameBoard()
+    this.board = this.emptyBoard()
+  }
+
+  /**
+   * Check is the current player has won the game
+   * @param {number} row
+   * @param {number} col
+   * @return {boolean}
+   */
+  isGameWon = (row: number, col: number): boolean => {
+    // Horizontal win
+    const hWon =
+      this.board[row][0] === this.board[row][1] &&
+      this.board[row][1] === this.board[row][2] &&
+      this.board[row][0] === this.currentPlayer
+    // Vertical win
+    const vWon =
+      this.board[0][col] === this.board[1][col] &&
+      this.board[1][col] === this.board[2][col] &&
+      this.board[0][col] === this.currentPlayer
+    // Diagonal win
+    const dWon =
+      (this.board[0][0] === this.currentPlayer &&
+        this.board[1][1] === this.currentPlayer &&
+        this.board[2][2] === this.currentPlayer) ||
+      (this.board[2][0] === this.currentPlayer &&
+        this.board[1][1] === this.currentPlayer &&
+        this.board[0][2] === this.currentPlayer)
+
+    return hWon || vWon || dWon
+  }
+
+  /**
+   * Switch to the next player
+   */
+  switchPlayer(): void {
+    this.currentPlayer =
+      this.currentPlayer === this.players.x ? this.players.o : this.players.x
+  }
+
+  /**
+   * Increase the score of the wining player
+   */
+  increaseScore(): void {
+    this.score[this.currentPlayer] += 1
+  }
 
   /**
    * Render score board and game board
