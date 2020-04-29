@@ -1,0 +1,20 @@
+{
+  "name": "tictactoe-ts",
+  "version": "1.0.0",
+  "description": "Tic Tac Toe in Typescript",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "tsc -w"
+  },
+  "author": {
+    "name": "Kazi Foyez Ahmed",
+    "email": "foyezar@gmail.com",
+    "url": "https://foyez.netlify.com"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^13.13.4",
+    "typescript": "^3.8.3"
+  }
+}

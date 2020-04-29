@@ -1,0 +1,74 @@
+/* I don't think this actually works on most devices yet...*/
+:root {
+  --font-color: #fcb42a;
+  --bg-color: #000022;
+  --board-color: #2121de;
+  --x-color: #ffff00;
+  --o-color: #ffffff;
+  --game-width: 450px;
+  --message-color: #00ff00;
+  --font-family: 'Press Start 2P';
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: #000022;
+  margin: 2rem 0;
+  font-size: 16px;
+  line-height: 1.5;
+  padding: 0;
+  font-family: 'Press Start 2P', sans-serif;
+  color: #fcb42a;
+}
+
+#game {
+  max-width: 450px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.score {
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.row,
+.col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.col {
+  cursor: pointer;
+  border: 3px solid #2121de;
+  margin: 5px;
+  height: 100px;
+  width: 100px;
+  line-height: 0;
+
+  border-radius: 4px;
+  font-size: 40px;
+}
+
+.col:hover {
+  border: 3px solid #4d4de4;
+}
+
+.x {
+  color: #ffff00;
+}
+
+.o {
+  color: #ffffff;
+}
+
+.message {
+  margin: 2rem 0;
+  text-align: center;
+  color: #00ff00;
+}
